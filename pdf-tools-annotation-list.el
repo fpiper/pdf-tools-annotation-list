@@ -90,6 +90,25 @@ need region."
      )))
     extracted-annots))
 
+(defun pdf-tools-annotation-list-entry-to-org (annotation)
+  "Converts ANNOTATION to org formatted text"
+  (format
+   "%s:\n%s%s\n"
+   (plist-get annotation :link)
+   (let ((text (plist-get annotation :text)))
+     (if text
+         (format "#+BEGIN_QUOTE\n%s\n#+END_QUOTE\n" text)
+       ""))
+   (plist-get annotation :contents)))
+
+(defun pdf-tools-annotation-list-insert-in-org (pdf)
+  (let* ((pdfbuffer (find-file-noselect pdf))
+        (annotations (with-current-buffer pdfbuffer
+                       (pdf-tools-annotation-list-create-list))))
+    (mapc (lambda (annot)
+            (insert (pdf-tools-annotation-list-entry-to-org annot)))
+          annotations)
+    nil))
 
 (provide 'pdf-tools-annotation-list)
 ;;; pdf-tools-annotation-list.el ends here
